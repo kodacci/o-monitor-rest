@@ -1,0 +1,17 @@
+{
+  "port": 4000,
+  "database": {
+      "host": "localhost",
+      "port": 5544,
+      "database": "ra-tech",
+      "user": "o-monitor",
+      "password": "o-monitor"
+  },
+  "system_stats_archive_depth": "P30D",
+  "cpu_load_update_interval_ms": 1000,
+  "jwt_secret": "top secret",
+  "default_user": {
+    "login": "admin",
+    "password": "abc12345"
+  }
+}

@@ -1,0 +1,4 @@
+dist/*
+migrations/*
+*.config.js
+.eslintrc.js

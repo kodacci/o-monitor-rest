@@ -1,0 +1,21 @@
+{
+  "sql-file": true,
+  "dev": {
+    "driver": "pg",
+    "host": "localhost",
+    "port": 5544,
+    "database": "ra-tech",
+    "user": "o-monitor",
+    "password": "o-monitor",
+    "schema": "o-monitor"
+  },
+  "test": {
+    "driver": "pg",
+    "host": "localhost",
+    "port": 5544,
+    "database": "test",
+    "user": "tester",
+    "password": "test",
+    "schema": "o-monitor"
+  }
+}
