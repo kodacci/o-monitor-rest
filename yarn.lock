@@ -970,6 +970,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/axios@npm:^0.14.0":
+  version: 0.14.0
+  resolution: "@types/axios@npm:0.14.0"
+  dependencies:
+    axios: "*"
+  checksum: 12a230b9404055d81804cb57fe4739b2317111b28a39e2477b2513250e8b85725e6f6ce509fc2a9494a6da60facb8d80df875fcd747f62f6c3abebc7db60ae66
+  languageName: node
+  linkType: hard
+
 "@types/babel__core@npm:^7.1.14":
   version: 7.1.19
   resolution: "@types/babel__core@npm:7.1.19"
@@ -1062,7 +1071,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/convict@npm:^6.1.1":
+"@types/convict-format-with-validator@npm:^6.0.2":
+  version: 6.0.2
+  resolution: "@types/convict-format-with-validator@npm:6.0.2"
+  dependencies:
+    "@types/convict": "*"
+  checksum: 2014f7a20b32a4cee8685d6df6c51b51f22668b5780ca542f243a0ee3e98000cb266f3d7bbb1235ecd427c7a1874d5c2add018e0950e2d303292926757376df4
+  languageName: node
+  linkType: hard
+
+"@types/convict@npm:*, @types/convict@npm:^6.1.1":
   version: 6.1.1
   resolution: "@types/convict@npm:6.1.1"
   dependencies:
@@ -1782,6 +1800,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:*, axios@npm:^1.2.2":
+  version: 1.2.2
+  resolution: "axios@npm:1.2.2"
+  dependencies:
+    follow-redirects: ^1.15.0
+    form-data: ^4.0.0
+    proxy-from-env: ^1.1.0
+  checksum: 6e357491b38426c5720f7328ecbafca3c643b03952c052d787570672ce7a9365717c2d64db4ce97cfbee3f830fa405101e360e14d0857ef7f96a9f4d814c4e03
+  languageName: node
+  linkType: hard
+
 "babel-jest@npm:^29.0.3":
   version: 29.0.3
   resolution: "babel-jest@npm:29.0.3"
@@ -2306,7 +2335,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"combined-stream@npm:^1.0.6":
+"combined-stream@npm:^1.0.6, combined-stream@npm:^1.0.8":
   version: 1.0.8
   resolution: "combined-stream@npm:1.0.8"
   dependencies:
@@ -2377,6 +2406,15 @@ __metadata:
   dependencies:
     safe-buffer: ~5.1.1
   checksum: 985d974a2d33e1a2543ada51c93e1ba2f73eaed608dc39f229afc78f71dcc4c8b7d7c684aa647e3c6a3a204027444d69e53e169ce94e8d1fa8d7dee80c9c8fed
+  languageName: node
+  linkType: hard
+
+"convict-format-with-validator@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "convict-format-with-validator@npm:6.2.0"
+  dependencies:
+    validator: ^13.6.0
+  checksum: c4f6ec7b0413a807ce83e7a4b6ce8381aba013da9be6791e43e05c61c5faec6a7bb61962bcdd1429350a0108bec340f4eed96c70193fe0c5f6a8dd623bfb7661
   languageName: node
   linkType: hard
 
@@ -3271,6 +3309,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"follow-redirects@npm:^1.15.0":
+  version: 1.15.2
+  resolution: "follow-redirects@npm:1.15.2"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: faa66059b66358ba65c234c2f2a37fcec029dc22775f35d9ad6abac56003268baf41e55f9ee645957b32c7d9f62baf1f0b906e68267276f54ec4b4c597c2b190
+  languageName: node
+  linkType: hard
+
 "form-data@npm:^2.3.1":
   version: 2.5.1
   resolution: "form-data@npm:2.5.1"
@@ -3279,6 +3327,17 @@ __metadata:
     combined-stream: ^1.0.6
     mime-types: ^2.1.12
   checksum: 5134ada56cc246b293a1ac7678dba6830000603a3979cf83ff7b2f21f2e3725202237cfb89e32bcb38a1d35727efbd3c3a22e65b42321e8ade8eec01ce755d08
+  languageName: node
+  linkType: hard
+
+"form-data@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "form-data@npm:4.0.0"
+  dependencies:
+    asynckit: ^0.4.0
+    combined-stream: ^1.0.8
+    mime-types: ^2.1.12
+  checksum: 01135bf8675f9d5c61ff18e2e2932f719ca4de964e3be90ef4c36aacfc7b9cb2fceb5eca0b7e0190e3383fe51c5b37f4cb80b62ca06a99aaabfcfd6ac7c9328c
   languageName: node
   linkType: hard
 
@@ -5167,11 +5226,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "o-monitor-rest@workspace:."
   dependencies:
+    "@types/axios": ^0.14.0
     "@types/body-parser": ^1.19.2
     "@types/chai": ^4.3.3
     "@types/chai-as-promised": ^7.1.5
     "@types/chai-http": ^4.2.0
     "@types/convict": ^6.1.1
+    "@types/convict-format-with-validator": ^6.0.2
     "@types/express": ^4.17.13
     "@types/http-status-codes": ^1.2.0
     "@types/jest": ^29.2.4
@@ -5188,12 +5249,14 @@ __metadata:
     "@types/winston": ^2.4.4
     "@typescript-eslint/eslint-plugin": latest
     "@typescript-eslint/parser": latest
+    axios: ^1.2.2
     body-parser: ^1.20.0
     chai: ^4.3.6
     chai-as-promised: ^7.1.1
     chai-http: ^4.3.0
     concurrently: ^7.3.0
     convict: ^6.2.3
+    convict-format-with-validator: ^6.2.0
     copyfiles: ^2.4.1
     db-migrate: ^0.11.13
     db-migrate-pg: ^1.2.2
@@ -5703,6 +5766,13 @@ __metadata:
     forwarded: 0.2.0
     ipaddr.js: 1.9.1
   checksum: 29c6990ce9364648255454842f06f8c46fcd124d3e6d7c5066df44662de63cdc0bad032e9bf5a3d653ff72141cc7b6019873d685708ac8210c30458ad99f2b74
+  languageName: node
+  linkType: hard
+
+"proxy-from-env@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "proxy-from-env@npm:1.1.0"
+  checksum: ed7fcc2ba0a33404958e34d95d18638249a68c430e30fcb6c478497d72739ba64ce9810a24f53a7d921d0c065e5b78e3822759800698167256b04659366ca4d4
   languageName: node
   linkType: hard
 
@@ -6861,6 +6931,13 @@ __metadata:
     "@types/istanbul-lib-coverage": ^2.0.1
     convert-source-map: ^1.6.0
   checksum: a49c34bf0a3af0c11041a3952a2600913904a983bd1bc87148b5c033bc5c1d02d5a13620fcdbfa2c60bc582a2e2970185780f0c844b4c3a220abf405f8af6311
+  languageName: node
+  linkType: hard
+
+"validator@npm:^13.6.0":
+  version: 13.7.0
+  resolution: "validator@npm:13.7.0"
+  checksum: 2b83283de1222ca549a7ef57f46e8d49c6669213348db78b7045bce36a3b5843ff1e9f709ebf74574e06223461ee1f264f8cc9a26a0060a79a27de079d8286ef
   languageName: node
   linkType: hard
 

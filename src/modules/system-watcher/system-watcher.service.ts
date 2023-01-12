@@ -122,6 +122,13 @@ export class SystemWatcherService {
     return this.cpuIdle.map((item) => (item < 100 ? 100 - item : 0))
   }
 
+  getMemoryLoad(): number {
+    const free = freemem()
+    const total = totalmem()
+
+    return ((total - free) * 100) / total
+  }
+
   async getTemperature(): Promise<number> {
     try {
       const tempStr = await readFile(SystemWatcherService.TEMP_FILE_PATH, {

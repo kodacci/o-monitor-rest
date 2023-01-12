@@ -2,6 +2,7 @@ import convict from 'convict'
 import { Duration } from 'luxon'
 import path from 'node:path'
 import { isoDuration } from './validators'
+import validators from 'convict-format-with-validator'
 
 convict.addFormat({
   name: 'ISO Duration',
@@ -10,6 +11,8 @@ convict.addFormat({
     return Duration.fromISO(String(val))
   },
 })
+
+convict.addFormats(validators)
 
 export const config = convict({
   port: {
@@ -84,6 +87,20 @@ export const config = convict({
       format: String,
       env: 'DEFAULT_USER_PASSWORD',
       default: 'abc12345',
+    },
+  },
+  telegram_bot: {
+    api_base_url: {
+      doc: 'Telegram bot API base url',
+      format: 'url',
+      env: 'TELEGRAM_BOT_API_BASE_URL',
+      default: 'https://api.telegram.org/',
+    },
+    token: {
+      doc: 'Telegram bot token',
+      format: String,
+      env: 'TELEGRAM_BOT_TOKEN',
+      default: '',
     },
   },
 })

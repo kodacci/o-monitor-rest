@@ -18,6 +18,8 @@ import { SwaggerService } from '@api/swagger'
 import swaggerUi from 'swagger-ui-express'
 import { AuthProvider } from '@modules/auth'
 import { authModule } from '@modules/auth/auth.module'
+import { TelegramBotService, telegramModule } from '@modules/telegram'
+import { Logger } from 'winston'
 
 export class Application {
   private readonly container = new Container()
@@ -33,19 +35,10 @@ export class Application {
     this.container.load(systemWatcherModule)
     this.container.load(databaseModule)
     this.container.load(authModule)
+    this.container.load(telegramModule)
   }
 
-  start(): Express.Application {
-    this.setup()
-
-    this.container.get<SystemWatcherService>(DiSymbols.SystemWatcherService)
-
-    const logger = this.container
-      .get<LoggerFactory>(DiSymbols.LoggerFactory)
-      .getLogger()
-
-    logger.info(`Loaded configuration: ${config.toString()}`)
-
+  private setupUserRepo(logger: Logger): void {
     const userRepo = this.container.get<UserRepo>(DiSymbols.UserRepo)
     userRepo
       .createDefaultUser()
@@ -59,10 +52,29 @@ export class Application {
           }`
         )
       })
+  }
+
+  start(): Express.Application {
+    this.setup()
+
+    this.container.get<SystemWatcherService>(DiSymbols.SystemWatcherService)
+
+    const logger = this.container
+      .get<LoggerFactory>(DiSymbols.LoggerFactory)
+      .getLogger()
+
+    logger.info(`Loaded configuration: ${config.toString()}`)
+
+    this.setupUserRepo(logger)
 
     const swaggerService = this.container.get<SwaggerService>(
       DiSymbols.SwaggerService
     )
+
+    const botService = this.container.get<TelegramBotService>(
+      DiSymbols.TelegramBotService
+    )
+    botService.start()
 
     const port = config.get('port')
     const server = new InversifyExpressServer(
