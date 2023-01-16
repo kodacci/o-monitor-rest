@@ -102,7 +102,7 @@ export class SystemWatcherService {
     this.statsJob = scheduleJob(rule, () => this.saveStats())
 
     this.cleanupJob = scheduleJob(
-      { hour: SystemWatcherService.CLEANUP_HOUR },
+      { hour: SystemWatcherService.CLEANUP_HOUR, minute: 0 },
       () => this.clearStats()
     )
     this.cleanupJob.invoke()
