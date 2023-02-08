@@ -13,8 +13,8 @@ import { AppConfig } from '@application/config/config'
 import { DateTime } from 'luxon'
 
 interface CpuIdleInfo {
-  ts: number
-  idle: number[]
+  readonly ts: number
+  readonly idle: number[]
 }
 
 @injectable()
@@ -26,7 +26,7 @@ export class SystemWatcherService {
   private static readonly CLEANUP_HOUR = 3
 
   private cpuIdle: number[] = os.cpus().map(() => 100)
-  private readonly prevCpuInfo: CpuIdleInfo = {
+  private prevCpuInfo: CpuIdleInfo = {
     ts: Date.now(),
     idle: os.cpus().map((info) => info.times.idle),
   }
@@ -35,10 +35,11 @@ export class SystemWatcherService {
 
   private updateCpuStats(): void {
     const idle = os.cpus().map((info) => info.times.idle)
+    const now = Date.now()
     this.cpuIdle = this.prevCpuInfo.idle.map(
-      (prev, idx) =>
-        ((idle[idx] - prev) * 100) / (Date.now() - this.prevCpuInfo.ts)
+      (prev, idx) => ((idle[idx] - prev) * 100) / (now - this.prevCpuInfo.ts)
     )
+    this.prevCpuInfo = { ts: now, idle }
   }
 
   private async saveStats(): Promise<void> {
