@@ -132,7 +132,7 @@ describe('/api/v1/users', () => {
 
     const { result } = res.body as SuccessResponse<UserData[]>
     expect(result).to.have.lengthOf(count)
-    validateUser(result[count - 1])
+    validateUser(result.find((user) => user.login === 'test') as UserData)
   })
 
   it('should get users count on /api/v1/users/count GET', async () => {
