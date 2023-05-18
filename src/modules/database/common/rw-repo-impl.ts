@@ -3,11 +3,7 @@ import _ from 'lodash'
 import { NotFoundError } from '../../error/not-found-error'
 import { DbConnService } from '../connection'
 import { EntityData, EntityRecord, Id, OmitId } from '../database.interfaces'
-import {
-  CountRepository,
-  ReadRepository,
-  WriteRepository,
-} from './repository'
+import { CountRepository, ReadRepository, WriteRepository } from './repository'
 
 @injectable()
 export abstract class RwRepoImpl<
@@ -15,10 +11,7 @@ export abstract class RwRepoImpl<
   T extends EntityData<ID> = EntityData<ID>,
   C = OmitId<T>,
   R extends EntityRecord<ID> = EntityRecord<ID>
-> implements
-    ReadRepository<ID, T>,
-    WriteRepository<ID, T, C>,
-    CountRepository
+> implements ReadRepository<ID, T>, WriteRepository<ID, T, C>, CountRepository
 {
   constructor(protected readonly db: DbConnService) {}
 
