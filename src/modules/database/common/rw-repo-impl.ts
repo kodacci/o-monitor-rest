@@ -3,15 +3,22 @@ import _ from 'lodash'
 import { NotFoundError } from '../../error/not-found-error'
 import { DbConnService } from '../connection'
 import { EntityData, EntityRecord, Id, OmitId } from '../database.interfaces'
-import { RwRepository } from './rw-repository'
+import {
+  CountRepository,
+  ReadRepository,
+  WriteRepository,
+} from './repository'
 
 @injectable()
 export abstract class RwRepoImpl<
   ID extends Id = number,
-  C = OmitId<EntityData>,
   T extends EntityData<ID> = EntityData<ID>,
+  C = OmitId<T>,
   R extends EntityRecord<ID> = EntityRecord<ID>
-> implements RwRepository<ID, T>
+> implements
+    ReadRepository<ID, T>,
+    WriteRepository<ID, T, C>,
+    CountRepository
 {
   constructor(protected readonly db: DbConnService) {}
 
@@ -80,9 +87,9 @@ export abstract class RwRepoImpl<
     return values.map((_val, idx) => `$${idx + 1}`).join(',')
   }
 
-  abstract create(data: OmitId<T>): Promise<T>
+  abstract create(data: C): Promise<T>
 
-  async update(id: ID, data: Partial<T>): Promise<T> {
+  async update(id: ID, data: Partial<C>): Promise<T> {
     const client = await this.db.getConn()
     const keys = _.keys(data)
     const values = _.values(data)

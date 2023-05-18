@@ -19,8 +19,8 @@ interface UserRecord extends EntityRecord<number> {
 @injectable()
 export class UserRepo extends RwRepoImpl<
   number,
-  CreateUserDto,
   UserEntity,
+  CreateUserDto,
   UserRecord
 > {
   private static readonly WRITE_PROPS: (keyof CreateUserDto)[] = [

@@ -1,7 +1,7 @@
 import { DiSymbols } from '@application/di-symbols'
 import { inject, injectable } from 'inversify'
 import { Mappers } from '../common'
-import { ReadRepository } from '../common/read-repository'
+import { ReadRepository } from '../common'
 import { DbConnService } from '../connection'
 import { Tables } from '../tables'
 import { AuthUserDto } from './auth-repo.interfaces'
