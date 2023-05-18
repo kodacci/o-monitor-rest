@@ -2,12 +2,11 @@ import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import { DiSymbols } from '@application/di-symbols'
 import { UserPrivilege } from '@modules/auth'
-import { NotFoundError } from '@modules/error'
-import { RepoImpl } from '../common'
+import { Mappers, RwRepoImpl } from '../common'
 import { DbConnService } from '../connection'
-import { EntityRecord, OmitId } from '../database.interfaces'
+import { EntityRecord } from '../database.interfaces'
 import { Tables } from '../tables'
-import { UserEntity } from './user-repo.interfaces'
+import { CreateUserDto, UserEntity } from './user-repo.interfaces'
 import { AppConfig } from '@application/config/config'
 
 interface UserRecord extends EntityRecord<number> {
@@ -15,13 +14,16 @@ interface UserRecord extends EntityRecord<number> {
   email?: string
   name: string
   privilegeName: string
-  password: string
-  tokenId?: string
 }
 
 @injectable()
-export class UserRepo extends RepoImpl<number, UserEntity, UserRecord> {
-  private static readonly WRITE_PROPS: (keyof OmitId<UserEntity>)[] = [
+export class UserRepo extends RwRepoImpl<
+  number,
+  UserEntity,
+  CreateUserDto,
+  UserRecord
+> {
+  private static readonly WRITE_PROPS: (keyof CreateUserDto)[] = [
     'login',
     'email',
     'name',
@@ -35,8 +37,6 @@ export class UserRepo extends RepoImpl<number, UserEntity, UserRecord> {
     'email',
     'name',
     'privilegeName',
-    'password',
-    'tokenId',
     'createdAt',
     'updatedAt',
     'deletedAt',
@@ -55,7 +55,7 @@ export class UserRepo extends RepoImpl<number, UserEntity, UserRecord> {
     return UserRepo.READ_PROPS.map((prop) => `"${prop}"`).join(',')
   }
 
-  protected getWriteProps(): (keyof OmitId<UserEntity>)[] {
+  protected getWriteProps(): (keyof CreateUserDto)[] {
     return UserRepo.WRITE_PROPS
   }
 
@@ -67,46 +67,17 @@ export class UserRepo extends RepoImpl<number, UserEntity, UserRecord> {
     return 'user'
   }
 
-  private toPrivilege(name: string): UserPrivilege {
-    switch (name) {
-      case UserPrivilege.USER:
-        return UserPrivilege.USER
-      case UserPrivilege.ADMIN:
-        return UserPrivilege.ADMIN
-      default:
-        throw new Error(`Unexpected user privilege name ${name}`)
-    }
-  }
-
   protected toEntity(record: UserRecord): UserEntity {
     return {
       ...this.toBaseEntity(record),
       login: record.login,
       name: record.name,
       email: record.email ?? undefined,
-      password: record.password,
-      tokenId: record.tokenId,
-      privilege: this.toPrivilege(record.privilegeName),
+      privilege: Mappers.mapUserPrivilege(record.privilegeName),
     }
   }
 
-  async findByLogin(login: string): Promise<UserEntity> {
-    const client = await this.db.getConn()
-    const res = await client.query(
-      `SELECT ${this.getReadPropsString()} FROM ${this.getTable()} ` +
-        'WHERE login=$1 AND deleted = false',
-      [login]
-    )
-    client.release()
-
-    if (!res.rows.length) {
-      throw new NotFoundError(this.getEntityName(), login)
-    }
-
-    return this.toEntity(res.rows[0] as UserRecord)
-  }
-
-  async create(data: OmitId<UserEntity>): Promise<UserEntity> {
+  async create(data: CreateUserDto): Promise<UserEntity> {
     const client = await this.db.getConn()
     const privilege = data.privilege
     const { keys, values } = this.extractKeysAndValues(
@@ -155,29 +126,6 @@ export class UserRepo extends RepoImpl<number, UserEntity, UserRecord> {
     const user = await this.findById(id)
 
     return user
-  }
-
-  async setTokenId(id: number, tokenId: string): Promise<void> {
-    const client = await this.db.getConn()
-    await client.query(
-      `UPDATE "${this.getTable()}" SET "tokenId"=$1 WHERE id=$2 AND deleted=false`,
-      [tokenId, id]
-    )
-
-    client.release()
-  }
-
-  async getTokenId(id: number): Promise<string | undefined> {
-    const client = await this.db.getConn()
-    const res = await client.query(
-      `SELECT "tokenId" FROM "${this.getTable()}" WHERE id=$1 AND deleted=false`,
-      [id]
-    )
-    client.release()
-
-    const data = res.rows[0] as { tokenId: string | undefined } | undefined
-
-    return data?.tokenId
   }
 
   async createDefaultUser(): Promise<boolean> {

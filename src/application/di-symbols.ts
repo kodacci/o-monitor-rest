@@ -23,4 +23,5 @@ export const DiSymbols = {
   AddUserValidator: Symbol.for('AddUserValidator'),
   GetUserValidator: Symbol.for('GetUserValidator'),
   PatchUserValidator: Symbol.for('PatchUserValidator'),
+  AuthRepo: Symbol.for('AuthRepository'),
 }

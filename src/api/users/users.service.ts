@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify'
 import { DiSymbols } from '@application/di-symbols'
 import { Hasher, User } from '@modules/auth'
-import { OmitId, UserEntity, UserRepo } from '@modules/database'
+import { CreateUserDto, UserEntity, UserRepo } from '@modules/database'
 import { CountResponse, DeleteResponse } from '@api/common'
 import { UserData } from './users.interfaces'
 
@@ -27,13 +27,13 @@ export class UsersService {
     return this.toUserData(user)
   }
 
-  async createNew(data: OmitId<UserEntity>): Promise<UserData> {
+  async createNew(data: CreateUserDto): Promise<UserData> {
     data.password = await this.hasher.hash(data.password)
 
     return this.toUserData(await this.repo.create(data))
   }
 
-  async update(id: number, data: Partial<UserEntity>): Promise<UserData> {
+  async update(id: number, data: Partial<CreateUserDto>): Promise<UserData> {
     if (data.password) {
       data.password = await this.hasher.hash(data.password)
     }

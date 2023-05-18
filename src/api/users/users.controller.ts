@@ -11,7 +11,7 @@ import {
 } from 'inversify-express-utils'
 import { JsonResult } from 'inversify-express-utils/lib/results'
 import { DiSymbols } from '@application/di-symbols'
-import { OmitId, UserEntity } from '@modules/database'
+import { CreateUserDto } from '@modules/database'
 import { AppHttpController } from '@api/common'
 import { UsersService } from './users.service'
 import { LoggerFactory } from '@modules/logger'
@@ -41,9 +41,7 @@ export class UsersController extends AppHttpController {
   }
 
   @httpPost('/', DiSymbols.AuthChecker, DiSymbols.AddUserValidator)
-  private addUser(
-    @requestBody() user: OmitId<UserEntity>
-  ): Promise<JsonResult> {
+  private addUser(@requestBody() user: CreateUserDto): Promise<JsonResult> {
     return this.toResult(this.service.createNew(user), StatusCodes.CREATED)
   }
 
@@ -55,7 +53,7 @@ export class UsersController extends AppHttpController {
   )
   private updateUser(
     @requestParam('id') id: string,
-    @requestBody() userData: Partial<UserEntity>
+    @requestBody() userData: Partial<CreateUserDto>
   ): Promise<JsonResult> {
     return this.toResult(this.service.update(Number(id), userData))
   }
