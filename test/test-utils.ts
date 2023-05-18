@@ -1,7 +1,7 @@
 import { config } from '../src/application/config/config'
 import { Client } from 'pg'
 import { UserData } from '@api/users'
-import { OmitId, Tables, UserEntity } from '@modules/database'
+import { CreateUserDto, Tables } from '@modules/database'
 import { Hasher } from '@modules/auth'
 import { omit } from 'lodash'
 import { AuthData, AuthRequest } from '@api/auth'
@@ -31,9 +31,9 @@ export class TestUtils {
     return res.rows as R[]
   }
 
-  static async createUser(user: OmitId<UserEntity>): Promise<UserData> {
+  static async createUser(user: CreateUserDto): Promise<UserData> {
     const hasher = new Hasher()
-    const password = await hasher.hash(user.password)
+    const password = await hasher.hash(user.password ?? '')
 
     const { id: privilege } = (
       await TestUtils.executeQuery<{ id: number }>(

@@ -1,7 +1,6 @@
 import { inject, injectable } from 'inversify'
 import { DiSymbols } from '@application/di-symbols'
-import { User } from '@modules/auth'
-import { UserRepo } from '@modules/database'
+import { Hasher, UserPrivilege } from '@modules/auth'
 import {
   AuthData,
   AuthRequest,
@@ -10,13 +9,13 @@ import {
 } from '@/api/auth/auth.interfaces'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { AppConfig } from '@application/config/config'
-import { NotFoundError, UnauthorizedError } from '@modules/error'
-import { UserData } from '@api/users'
-import { userDataSchema } from '@api/common'
+import { UnauthorizedError } from '@modules/error'
+import { userBaseKeys } from '@api/common'
 import Joi from 'joi'
 import { LoggerFactory } from '@modules/logger'
 import { Logger } from 'winston'
 import { v1 as uuid } from 'uuid'
+import { AuthRepo, AuthUserDto } from '@modules/database/auth-repo'
 
 interface TokensData {
   tokenId: string
@@ -24,17 +23,27 @@ interface TokensData {
   refreshToken: string
 }
 
+interface TokenUserData {
+  id: number
+  login: string
+  privilege: UserPrivilege
+}
+
 interface TokenPayload {
   id: string
   type: 'ACCESS' | 'REFRESH'
-  user: UserData
+  user: TokenUserData
 }
 
 const tokenPayloadSchema = Joi.object()
   .keys({
     payload: Joi.object().keys({
       id: Joi.string().uuid().required(),
-      user: userDataSchema,
+      user: Joi.object().keys({
+        id: Joi.number().positive().required(),
+        login: userBaseKeys.login,
+        privilege: userBaseKeys.privilege,
+      }),
       type: Joi.string().valid('ACCESS', 'REFRESH').required(),
     }),
   })
@@ -43,16 +52,17 @@ const tokenPayloadSchema = Joi.object()
 @injectable()
 export class AuthService {
   private readonly logger: Logger
+  private readonly hasher = new Hasher()
 
   constructor(
-    @inject(DiSymbols.UserRepo) private readonly userRepo: UserRepo,
+    @inject(DiSymbols.AuthRepo) private readonly authRepo: AuthRepo,
     @inject(DiSymbols.config) private readonly config: AppConfig,
     @inject(DiSymbols.LoggerFactory) loggerFactory: LoggerFactory
   ) {
     this.logger = loggerFactory.getLogger('SERVICES.AUTH')
   }
 
-  private genTokens(user: UserData): TokensData {
+  private genTokens(user: TokenUserData): TokensData {
     const tokenId = uuid()
 
     return {
@@ -74,31 +84,31 @@ export class AuthService {
     }
   }
 
-  private async findUser(login: string, path: string): Promise<User> {
-    try {
-      return new User(await this.userRepo.findByLogin(login))
-    } catch (error: unknown) {
-      if (error instanceof NotFoundError) {
-        throw new UnauthorizedError(path)
-      }
-
-      throw error
+  async validateUser(
+    login: string,
+    password: string
+  ): Promise<TokenUserData | undefined> {
+    const user = await this.authRepo.findById(login)
+    if (!user) {
+      return undefined
     }
+
+    const valid = await this.hasher.compare(password, user.password)
+    return valid
+      ? { id: user.id, login: user.login, privilege: user.privilege }
+      : undefined
   }
 
   async authenticate(data: AuthRequest, path: string): Promise<AuthData> {
-    const user = await this.findUser(data.login, path)
-    const valid = await user.isPasswordValid(data.password)
-    if (!valid) {
+    const user = await this.validateUser(data.login, data.password)
+    if (!user) {
       throw new UnauthorizedError(path)
     }
 
-    const userData = user.toData()
-    const tokens = this.genTokens(userData)
-    await this.userRepo.setTokenId(userData.id, tokens.tokenId)
+    const tokens = this.genTokens(user)
+    await this.authRepo.setTokenId(user.id, tokens.tokenId)
 
     return {
-      user: userData,
       refreshToken: tokens.refreshToken,
       accessToken: tokens.accessToken,
     }
@@ -142,13 +152,13 @@ export class AuthService {
       path
     )
 
-    const tokenId = await this.userRepo.getTokenId(payload.user.id)
+    const tokenId = await this.authRepo.getTokenId(payload.user.id)
     if (tokenId !== payload.id) {
       throw new UnauthorizedError('/api/v1/auth/token')
     }
 
     const tokens = this.genTokens(payload.user)
-    await this.userRepo.setTokenId(payload.user.id, tokens.tokenId)
+    await this.authRepo.setTokenId(payload.user.id, tokens.tokenId)
 
     return {
       accessToken: tokens.accessToken,
@@ -159,15 +169,15 @@ export class AuthService {
   async getUser(
     token: string | undefined,
     path: string
-  ): Promise<User | undefined> {
+  ): Promise<AuthUserDto | undefined> {
     if (!token) {
       return undefined
     }
 
     const { id, user } = this.verifyAndExtractToken(token, 'ACCESS', path)
 
-    const dbUser = await this.userRepo.findById(user.id)
+    const dbUser = await this.authRepo.findById(user.login)
 
-    return dbUser && id === dbUser.tokenId ? new User(dbUser) : undefined
+    return dbUser && id === dbUser.tokenId ? dbUser : undefined
   }
 }

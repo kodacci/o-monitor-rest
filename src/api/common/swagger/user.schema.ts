@@ -2,7 +2,7 @@ import { UserPrivilege } from '@modules/auth/user.enums'
 import Joi from 'joi'
 import { entries } from 'lodash'
 
-const userBaseKeys = {
+export const userBaseKeys = {
   login: Joi.string().min(3).max(255).required(),
   name: Joi.string().min(5).max(244).required(),
   email: Joi.string().email(),

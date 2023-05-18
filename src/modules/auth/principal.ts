@@ -1,11 +1,11 @@
 import 'reflect-metadata'
 import { interfaces } from 'inversify-express-utils'
 import { ResourceId } from './resource-id'
-import { User } from './user'
 import { UserPrivilege } from './user.enums'
+import { AuthUserDto } from '@modules/database/auth-repo'
 
 export class Principal implements interfaces.Principal {
-  public constructor(public details: User | undefined) {}
+  public constructor(public details: AuthUserDto | undefined) {}
 
   public isAuthenticated(): Promise<boolean> {
     return Promise.resolve(!!this.details)
@@ -24,6 +24,6 @@ export class Principal implements interfaces.Principal {
   }
 
   public isInRole(role: string): Promise<boolean> {
-    return Promise.resolve(this.details?.getPrivilege() === role)
+    return Promise.resolve(this.details?.privilege === role)
   }
 }

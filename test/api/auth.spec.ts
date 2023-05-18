@@ -8,9 +8,9 @@ import { TestUtils } from '../test-utils'
 import { UserPrivilege } from '@modules/auth/user.enums'
 import { DateTime } from 'luxon'
 import { ApiError, ErrorCode } from '@modules/error'
-import { UserRepo } from '@modules/database'
 import jwt from 'jsonwebtoken'
 import { config } from '@application/config/config'
+import { AuthRepo } from '@modules/database/auth-repo'
 
 chai.use(chaiHttp)
 
@@ -66,8 +66,6 @@ describe('/api/v1/auth', () => {
     expect(res.body).to.have.property('result').to.be.a('object')
 
     const { result } = res.body as SuccessResponse<AuthData>
-    expect(result.user).to.be.a('object')
-    expect(result.user).to.include(user)
     expect(result.accessToken).to.be.a('string')
     expect(result.refreshToken).to.be.a('string')
 
@@ -176,9 +174,9 @@ describe('/api/v1/auth', () => {
     expect(error.details.message).to.eq('Invalid JWT payload data')
   })
 
-  it('should return 500 error on findByLogin error', async () => {
+  it('should return 500 error on AuthRepo findById error', async () => {
     jest
-      .spyOn(UserRepo.prototype, 'findByLogin')
+      .spyOn(AuthRepo.prototype, 'findById')
       .mockRejectedValueOnce(new Error('Dummy error'))
 
     const res = await chai

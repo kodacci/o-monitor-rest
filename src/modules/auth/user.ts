@@ -1,18 +1,11 @@
 import { UserEntity } from '../database/user-repo'
-import { UserPrivilege } from './user.enums'
-import { Hasher } from './hasher'
 import { UserData } from '@api/users'
 
 export class User {
   private readonly entity: UserEntity
-  private readonly hasher: Hasher = new Hasher()
 
   constructor(entity: UserEntity) {
     this.entity = { ...entity }
-  }
-
-  getPrivilege(): UserPrivilege {
-    return this.entity.privilege
   }
 
   getId(): number {
@@ -35,14 +28,5 @@ export class User {
       email: this.entity.email,
       privilege: this.entity.privilege,
     }
-  }
-
-  async isPasswordValid(challenge: string): Promise<boolean> {
-    const password = this.entity.password
-    if (!password) {
-      return false
-    }
-
-    return await this.hasher.compare(challenge, password)
   }
 }

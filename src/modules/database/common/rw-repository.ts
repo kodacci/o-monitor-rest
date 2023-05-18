@@ -1,6 +1,6 @@
 import { EntityData, Id, OmitId } from '../database.interfaces'
 
-export interface Repository<
+export interface RwRepository<
   ID extends Id,
   T extends EntityData<ID> = EntityData<ID>
 > {

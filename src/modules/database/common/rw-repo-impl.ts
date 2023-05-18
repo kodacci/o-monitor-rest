@@ -3,19 +3,20 @@ import _ from 'lodash'
 import { NotFoundError } from '../../error/not-found-error'
 import { DbConnService } from '../connection'
 import { EntityData, EntityRecord, Id, OmitId } from '../database.interfaces'
-import { Repository } from './repository'
+import { RwRepository } from './rw-repository'
 
 @injectable()
-export abstract class RepoImpl<
+export abstract class RwRepoImpl<
   ID extends Id = number,
+  C = OmitId<EntityData>,
   T extends EntityData<ID> = EntityData<ID>,
   R extends EntityRecord<ID> = EntityRecord<ID>
-> implements Repository<ID, T>
+> implements RwRepository<ID, T>
 {
   constructor(protected readonly db: DbConnService) {}
 
   protected abstract getReadPropsString(): string
-  protected abstract getWriteProps(): (keyof OmitId<T>)[]
+  protected abstract getWriteProps(): (keyof C)[]
   protected abstract getTable(): string
   protected abstract getEntityName(): string
   protected abstract toEntity(record: R): T
@@ -65,11 +66,11 @@ export abstract class RepoImpl<
     return Number(count)
   }
 
-  protected extractKeysAndValues(data: Partial<OmitId<T>>): {
-    keys: (keyof OmitId<T>)[]
-    values: Partial<OmitId<T>>[keyof OmitId<T>][]
+  protected extractKeysAndValues(data: Partial<C>): {
+    keys: (keyof C)[]
+    values: Partial<C>[keyof C][]
   } {
-    const keys = this.getWriteProps().filter((prop: keyof T) => prop in data)
+    const keys = this.getWriteProps().filter((prop: keyof C) => prop in data)
     const values = keys.map((prop) => data[prop])
 
     return { keys, values }
