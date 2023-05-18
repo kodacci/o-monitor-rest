@@ -43,9 +43,6 @@ export class User {
       return false
     }
 
-    const [salt, hash] = password.split(':')
-    const challengeHash = await this.hasher.pbkdf2(challenge, salt)
-
-    return hash === challengeHash
+    return await this.hasher.compare(challenge, password)
   }
 }
